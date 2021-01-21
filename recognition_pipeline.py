@@ -6,6 +6,7 @@
 # Imports needed for pipeline
 import cv2
 import os
+import config
 import numpy as np
 import matplotlib.pyplot as plt
 from numpy import asarray 
@@ -21,11 +22,13 @@ from keras.preprocessing.image import img_to_array, load_img
 dir_path = os.path.dirname(os.path.realpath(__file__))
 
 # Getting all the classes in dataset
-directory = '../../Data/original_dataset_horimiya'
+directory = 'Original_dataset'
 classes_recog = os.listdir(directory)
+classes_recog.remove('Readme.md')
+classes_recog = ["Luffy", "Nami", "Nico Robin", "Sanji", "Unknown", "Usopp", "Vivi", "Zoro"]
 print(classes_recog)
 
-model_recog = keras.models.load_model(dir_path + "\Weights_recog\Final_Model_VGG19_horimiya_v2.h5")
+model_recog = keras.models.load_model(dir_path + r"/Weights_recog/" + config.save_model_name)
 
 # Yolo model inladen en klaarzetten voor gebruik
 net = cv2.dnn.readNet(dir_path + "\Weights_detec\manga_v7_final_weights.weights", dir_path + "\Weights_detec\manga_v7_final_config.cfg")  
@@ -109,32 +112,11 @@ def drawboxes(files, directory, volume_name):
 
                 image2 = load_img("0.jpg", target_size=(224,224))
 
-                #image2.show()
-                #image2.save(f"{j}.jpg")
-                #plt.imshow(numpyImage, interpolation='nearest')
-                #plt.show()
-
                 numpyImage = img_to_array(image2)
-
-                #numpyImage = transform.resize(numpyImage,(224, 224))
 
                 numpyImage /= 255
 
                 numpyImage = numpyImage.reshape((1,224,224,3))
-
-                #fig, axes = plt.subplots(nrows=2, ncols=2)
-
-                #ax = axes.ravel()
-
-                #ax[0].imshow(numpyImage, cmap='gray')
-                #ax[0].set_title("Rescaled image")
-
-                #plt.tight_layout()
-                #plt.show()
-
-                # numpyImage /= 255
-
-                # numpyImage = preprocess_input(numpyImage)
 
                 pred = model_recog.predict(numpyImage)
 
@@ -146,9 +128,9 @@ def drawboxes(files, directory, volume_name):
 
                 print(pred_value)
 
-                if pred_value >= 0.9:
+                if pred_value >= 0.8:
                     pred_chara = classes_recog[np.argmax(pred[0])]
-                elif pred_value < 0.9:
+                elif pred_value < 0.8:
                     pred_chara = "Unknown"
 
                 cv2.putText(img, str(pred_chara), (x + 5, y + 60), cv2.FONT_HERSHEY_PLAIN, 1.3, color=(211, 44, 44), thickness=2)
@@ -160,11 +142,13 @@ def drawboxes(files, directory, volume_name):
 
 directory = '../../Data/Volumes'
 files = os.listdir(directory)
+chosen_volume = 0
 
-print("Which volume of manga would you like to use detection on?")
-for i in range(0, len(files)):
-    print(f" \t {i}. {files[i]}")
 
-chosen_volume = input("Which volume of manga would you like to use detection on? ")
-chosen_directory = directory + "\\" + str(files[int(chosen_volume)])
-drawboxes(os.listdir(chosen_directory), chosen_directory,  chosen_directory.partition("Volumes\\")[2])
+while chosen_volume != "exit":
+    print("Which volume of manga would you like to use detection on?")
+    for i in range(0, len(files)):
+        print(f" \t {i}. {files[i]}")
+    chosen_volume = input("Which volume of manga would you like to use detection on? ")
+    chosen_directory = directory + "\\" + str(files[int(chosen_volume)])
+    drawboxes(os.listdir(chosen_directory), chosen_directory,  chosen_directory.partition("Volumes\\")[2])
