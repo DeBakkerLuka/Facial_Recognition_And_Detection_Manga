@@ -9,3 +9,4 @@ save_model_name = "Final_Model_VGG19_onepiece.h5"
 dataset_dir = "Split_dataset/"
 train_dir = dataset_dir + "train"
 test_dir = dataset_dir + "test"
+volumes_dir = '../../Data/Volumes'

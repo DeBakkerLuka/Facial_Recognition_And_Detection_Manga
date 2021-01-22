@@ -25,7 +25,6 @@ dir_path = os.path.dirname(os.path.realpath(__file__))
 directory = 'Original_dataset'
 classes_recog = os.listdir(directory)
 classes_recog.remove('Readme.md')
-classes_recog = ["Luffy", "Nami", "Nico Robin", "Sanji", "Unknown", "Usopp", "Vivi", "Zoro"]
 print(classes_recog)
 
 model_recog = keras.models.load_model(dir_path + r"/Weights_recog/" + config.save_model_name)
@@ -98,12 +97,6 @@ def drawboxes(files, directory, volume_name):
                 cv2.rectangle(img, (x, y), (x + w, y + h), color=(211, 44, 44), thickness=3)
                 cv2.putText(img, str(confidence), (x + 5, y + 30), cv2.FONT_HERSHEY_PLAIN, 1.4, color=(211, 44, 44), thickness=4)
 
-                # Cropping the face using coordinate formulas.
-                #w_norm = ((x + w) - x)
-                #h_norm = ((y + h) - y)
-                #x_norm = x + (w/2)
-                #y_norm = y + (h/2)
-
                 # This image will be used to predict which character is present.
                 # So this image will be put into the recognition model.
                 image2 = image.crop((x, y, x+w, y+h))
@@ -140,7 +133,7 @@ def drawboxes(files, directory, volume_name):
         image.save(f"Results/{volume_name}/{j}.jpg")
 
 
-directory = '../../Data/Volumes'
+directory = config.volumes_dir
 files = os.listdir(directory)
 chosen_volume = 0
 
